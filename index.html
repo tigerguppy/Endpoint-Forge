@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Endpoint Forge v6.8</title>
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; connect-src 'none'; upgrade-insecure-requests">
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<title>Endpoint Forge v6.9</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -72,6 +75,9 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
 .context-info{padding:4px 9px;border-radius:999px}
 .version-btn{font-size:10px;color:var(--text3);background:transparent;border:0;padding:0;text-align:left;cursor:pointer}
 .version-btn:hover{color:var(--accent)}
+.file-main{cursor:help}
+.status-row.file-row .file-actions{display:flex;gap:6px;flex-wrap:wrap}
+.license-note{font-size:10px;color:var(--text3);margin-top:4px;line-height:1.35}
 .save-dot.file{background:var(--green)}.save-dot.cache{background:var(--amber)}.save-dot.demo{background:var(--text3)}
 .ef-filter{position:relative;min-width:160px;max-width:220px}
 .ef-filter-btn{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:6px 10px;font-size:13px;color:var(--text);white-space:nowrap}
@@ -271,7 +277,7 @@ th.sort-desc::after{content:" ▼";color:var(--accent)}
   <div class="nav-item" onclick="nav('settings')" data-page="settings">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings
   </div>
-  <div style="margin-top:auto;padding:10px 16px;font-size:10px;color:var(--text3);border-top:1px solid var(--border)"><button class="version-btn" onclick="showChangeLog()">v6.6 · Portable Endpoint Forge</button></div>
+  <div style="margin-top:auto;padding:10px 16px;font-size:10px;color:var(--text3);border-top:1px solid var(--border)"><button class="version-btn" onclick="showChangeLog()">v6.9 · AGPL-3.0 · Portable Endpoint Forge</button></div>
 </div>
 
 <!-- CONTENT -->
@@ -451,8 +457,8 @@ Code organization uses section headers to keep the single-file app maintainable 
 // ===== DEFAULT DATA =====
 const DEFAULT_DATA = {
   clients:[
-    {id:'c1',name:'Acme Corp'},
-    {id:'c2',name:'Globex Industries'}
+    {id:'c1',name:'Contoso Ltd'},
+    {id:'c2',name:'Fabrikam, Inc.'}
   ],
   profiles:[
     {id:'p1',clientId:'c1',name:'Standard Workstation',includeCategories:['Security','Utilities'],excludeCategories:[],includeTags:[],excludeTags:[],includeTypes:[],excludeTypes:[],includePhases:['Install'],excludePhases:[],includeOS:['win11'],excludeOS:[]},
@@ -481,9 +487,9 @@ const DEFAULT_DATA = {
       {id:'i6',title:'Remove from domain',description:'Delete computer object from AD',done:false},
       {id:'i7',title:'Wipe disk',description:'Run DBAN or Windows Reset',done:false}
     ]},
-    {id:'cl3',clientId:'c2',name:'Globex Onboarding',items:[
-      {id:'i8',title:'Install Huntress agent',description:'Use Globex account key',done:false},
-      {id:'i9',title:'Configure Splashtop',description:'Add to Globex deployment group',done:false}
+    {id:'cl3',clientId:'c2',name:'Fabrikam Onboarding',items:[
+      {id:'i8',title:'Install Huntress agent',description:'Use Fabrikam account key',done:false},
+      {id:'i9',title:'Configure Splashtop',description:'Add to Fabrikam deployment group',done:false}
     ]}
   ],
   items:[
@@ -495,9 +501,9 @@ const DEFAULT_DATA = {
     {id:'it6',itemKind:'Registry Edit',name:'Disable Browser Background Apps',description:'Example scriptlet / tweak item used to document and apply a local browser policy.',notes:'Demonstrates Endpoint Forge as a scriptlet repository, not only an app installer.',categories:['Utilities'],tags:['Optional'],types:['Scriptlet'],phases:['Configure'],os:{win11:{command:String.raw`reg add HKCU\Software\Policies\Chromium /v BackgroundModeEnabled /t REG_DWORD /d 0 /f`,manualInstall:false},debian:{command:String.raw`sudo mkdir -p /etc/chromium/policies/managed && echo '{"BackgroundModeEnabled":false}' | sudo tee /etc/chromium/policies/managed/endpoint-forge-baseline.json`,manualInstall:false},macos:{command:String.raw`defaults write com.google.Chrome BackgroundModeEnabled -bool false`,manualInstall:false}},url:'',dependencies:[],requiresReboot:false,testing:false,enabled:true,optional:true,manualSteps:'Verify the browser policy page shows the expected setting.',offboardingSteps:'Remove the local policy/registry value if this baseline no longer applies.',secrets:[]}
   ],
   secrets:[
-    {id:'s1',clientId:'c1',key:'HUNTRESS_ACCOUNT_KEY',value:'',description:'Huntress EDR account key for Acme Corp'},
+    {id:'s1',clientId:'c1',key:'HUNTRESS_ACCOUNT_KEY',value:'',description:'Huntress EDR account key for Contoso Ltd'},
     {id:'s2',clientId:'c1',key:'SPLASHTOP_DEPLOYMENT_CODE',value:'',description:'Splashtop deployment code'},
-    {id:'s3',clientId:'c2',key:'HUNTRESS_ACCOUNT_KEY',value:'',description:'Huntress EDR account key for Globex'},
+    {id:'s3',clientId:'c2',key:'HUNTRESS_ACCOUNT_KEY',value:'',description:'Huntress EDR account key for Fabrikam'},
     {id:'s4',clientId:'c2',key:'NETDATA_CLAIM_TOKEN',value:'',description:'Netdata cloud claim token'}
   ],
   buildStates:{}
@@ -517,7 +523,8 @@ let selectedOutputFile = null;
 let itemSortState = {key:'name',dir:'asc'};
 let checklistDragState = null;
 let selectedChecklistId = null;
-let storageSource = {catalog:'demo', secrets:'demo', state:'demo'};
+let storageSource = {catalog:'demo', secrets:'demo', state:'demo', logs:'memory'};
+let fileRefs = {catalog:'No catalog JSON has been imported or exported in this browser session.', secrets:'No secrets JSON has been imported or exported in this browser session.', state:'No endpoint state JSON has been imported or exported in this browser session.', logs:'No log JSON/text file has been imported or exported in this browser session.'};
 let itemFilterState = {cat:[],phase:[],tag:[],os:[]};
 
 
@@ -538,12 +545,32 @@ function activeClients(){ return (catalog.clients||[]).filter(c=>c.enabled!==fal
 function activeProfilesForClient(clientId){ return (catalog.profiles||[]).filter(p=>p.clientId===clientId && p.enabled!==false).sort(alphaByName); }
 function sortedSecretsForClient(clientId){ return (catalog.secrets||[]).filter(s=>s.clientId===clientId).sort((a,b)=>String(a.key||'').localeCompare(String(b.key||''),undefined,{sensitivity:'base'})); }
 function sortedChecklistsForClient(clientId){ return (catalog.checklists||[]).filter(c=>c.clientId===clientId).sort(alphaByName); }
+function createBlankCatalog(){
+  return {
+    schemaVersion:'6.9', productName:'Endpoint Forge', catalogName:'Endpoint Forge Catalog',
+    lastUpdated:new Date().toISOString().split('T')[0], notes:'',
+    clients:[], profiles:[], categories:[], tags:[], types:[], phases:[], operatingSystems:[],
+    checklists:[], items:[], secrets:[], buildStates:{}, preferences:{}, changelog:[]
+  };
+}
+function resetRuntimeSelections(){
+  outputSelections={}; selectedOutputFile=null; selectedChecklistId=null; editingItemId=null;
+  itemFilterState={cat:[],phase:[],tag:[],os:[]}; itemSortState={key:'name',dir:'asc'};
+}
+function describeFileRef(kind, fallback){
+  return fileRefs[kind] || fallback || 'No file has been imported or exported in this browser session.';
+}
+function setFileRef(kind, action, filename){
+  const note = 'Browser privacy prevents Endpoint Forge from reading the full local path unless the File System Access API is used. File: ' + (filename||'unknown') + '. Source: ' + action + '.';
+  fileRefs[kind]=note;
+}
+
 
 // ===== INIT =====
 function init(){
   // Try localStorage
   const saved = localStorage.getItem('endpoint-forge');
-  if(saved){try{catalog=JSON.parse(saved);storageSource.catalog='recovery cache';storageSource.secrets='recovery cache';storageSource.state='recovery cache';}catch(e){}}
+  if(saved){try{catalog=JSON.parse(saved);storageSource.catalog='recovery cache';storageSource.secrets='recovery cache';storageSource.state='recovery cache';storageSource.logs='recovery cache';}catch(e){}}
   const savedCtx = localStorage.getItem('endpoint-forge-ctx');
   if(savedCtx){try{ctx=JSON.parse(savedCtx);}catch(e){}}
   const savedLogs = localStorage.getItem('endpoint-forge-logs');
@@ -578,7 +605,7 @@ function init(){
 }
 
 function dataCommitState(){
-  const fileBacked = ['imported','exported/saved'].includes(storageSource.catalog) || ['imported','exported/saved'].includes(storageSource.secrets) || ['imported','exported/saved'].includes(storageSource.state);
+  const fileBacked = ['imported','exported/saved'].includes(storageSource.catalog) || ['imported','exported/saved'].includes(storageSource.secrets) || ['imported','exported/saved'].includes(storageSource.state) || ['imported','exported/saved'].includes(storageSource.logs);
   if(dirty) return 'Unsaved - memory only';
   if(fileBacked) return 'Saved - JSON committed';
   if(storageSource.catalog==='recovery cache') return 'Saved - browser recovery cache';
@@ -589,7 +616,7 @@ function updateSaveIndicator(){
   if(!dot||!label)return;
   dot.className='save-dot';
   if(dirty) dot.classList.add('dirty');
-  else if(['imported','exported/saved'].includes(storageSource.catalog) || ['imported','exported/saved'].includes(storageSource.secrets) || ['imported','exported/saved'].includes(storageSource.state)) dot.classList.add('file');
+  else if(['imported','exported/saved'].includes(storageSource.catalog) || ['imported','exported/saved'].includes(storageSource.secrets) || ['imported','exported/saved'].includes(storageSource.state) || ['imported','exported/saved'].includes(storageSource.logs)) dot.classList.add('file');
   else if(storageSource.catalog==='recovery cache') dot.classList.add('cache');
   else dot.classList.add('demo');
   label.textContent=dataCommitState();
@@ -710,12 +737,13 @@ function renderDashboard(){
   const catalogReal=storageSource.catalog==='imported' || storageSource.catalog==='exported/saved';
   const secretsReal=storageSource.secrets==='imported' || storageSource.secrets==='exported/saved';
   const stateReal=storageSource.state==='imported' || storageSource.state==='exported/saved';
+  const logsReal=storageSource.logs==='imported' || storageSource.logs==='exported/saved';
   document.getElementById('dash-files').innerHTML=`
-    <div class="status-row file-row"><span class="file-main"><span class="dot ${catalogReal?'green':'amber'}"></span>endpoint-forge-catalog.json</span><span class="badge file-status ${catalogReal?'green':'amber'}">${catalogReal?'Loaded from file':storageSource.catalog==='recovery cache'?'Recovery cache':'Demo data only'}</span><span class="file-actions"><button onclick="importCatalog()">Import</button><button onclick="exportCatalog()">Export</button></span></div>
-    <div class="status-row file-row"><span class="file-main"><span class="dot ${secretsReal?'green':'amber'}"></span>endpoint-forge-secrets.json</span><span class="badge file-status ${secretsReal?'green':'amber'}">${secretsReal?'Loaded/exported':storageSource.secrets==='recovery cache'?'Recovery cache':secrets.length?'Demo secrets only':'Not created'}</span><span class="file-actions"><button onclick="importSecrets()">Import</button><button onclick="exportSecrets()">Export</button></span></div>
-    <div class="status-row file-row"><span class="file-main"><span class="dot ${stateReal?'green':'amber'}"></span>${ctx.endpoint?ctx.endpoint+'-build-state.json':'(no endpoint set)'}</span><span class="badge file-status ${stateReal?'green':'amber'}">${stateReal?'Loaded/exported':ctx.endpoint?'In-memory state':'Endpoint Missing'}</span><span class="file-actions"><button onclick="importState()">Import</button><button onclick="exportState()">Export</button></span></div>
-    <div class="status-row file-row"><span class="file-main"><span class="dot ${logs.length?'green':'gray'}"></span>endpoint-forge-log.json / build.log</span><span class="badge file-status ${logs.length?'green':'gray'}">${logs.length} entries</span><span class="file-actions"><button onclick="importLogs()">Import</button><button onclick="exportLogs()">Export</button></span></div>
-    <div class="status-row file-row"><span class="file-main"><span class="dot red"></span>Browser recovery/local cache</span><span class="badge file-status amber">Use only after JSON save</span><span class="file-actions"><button class="danger" onclick="clearLocalCache()">Clear Cache</button></span></div>
+    <div class="status-row file-row"><span class="file-main" title="${esc(describeFileRef('catalog'))}"><span class="dot ${catalogReal?'green':'amber'}"></span>endpoint-forge-catalog.json</span><span class="badge file-status ${catalogReal?'green':'amber'}">${catalogReal?'Loaded/exported file':storageSource.catalog==='recovery cache'?'Recovery cache':'Demo/in-memory only'}</span><span class="file-actions"><button onclick="importCatalog()">Import</button><button onclick="exportCatalog()">Export</button></span></div>
+    <div class="status-row file-row"><span class="file-main" title="${esc(describeFileRef('secrets'))}"><span class="dot ${secretsReal?'green':'amber'}"></span>endpoint-forge-secrets.json</span><span class="badge file-status ${secretsReal?'green':'amber'}">${secretsReal?'Loaded/exported file':storageSource.secrets==='recovery cache'?'Recovery cache':secrets.length?'Demo/in-memory only':'Not created'}</span><span class="file-actions"><button onclick="importSecrets()">Import</button><button onclick="exportSecrets()">Export</button></span></div>
+    <div class="status-row file-row"><span class="file-main" title="${esc(describeFileRef('state'))}"><span class="dot ${stateReal?'green':'amber'}"></span>${ctx.endpoint?ctx.endpoint+'-build-state.json':'(no endpoint set)'}</span><span class="badge file-status ${stateReal?'green':'amber'}">${stateReal?'Loaded/exported file':ctx.endpoint?'In-memory state':'Endpoint Missing'}</span><span class="file-actions"><button onclick="importState()">Import</button><button onclick="exportState()">Export</button></span></div>
+    <div class="status-row file-row"><span class="file-main" title="${esc(describeFileRef('logs'))}"><span class="dot ${logsReal?'green':'amber'}"></span>endpoint-forge-log.json / build.log</span><span class="badge file-status ${logsReal?'green':'amber'}">${logsReal?'Loaded/exported file':logs.length?'In-memory logs':'No log file'}</span><span class="file-actions"><button onclick="importLogs()">Import</button><button onclick="exportLogs()">Export</button></span></div>
+    <div class="status-row file-row"><span class="file-main" title="Clears browser localStorage recovery data only. Export JSON first."><span class="dot red"></span>Browser recovery/local cache</span><span class="badge file-status amber">Use only after JSON save</span><span class="file-actions"><button class="danger" onclick="clearLocalCache()">Clear Cache</button><button class="danger" onclick="blankSlate()">Blank Slate</button></span></div>
   `;
   renderDashLog();
   renderHealth();
@@ -2012,8 +2040,10 @@ function importCatalog(){
       try{
         const data=JSON.parse(ev.target.result);
         if(data.items||data.clients){
-          Object.assign(catalog,data);
-          storageSource.catalog='imported'; updateSaveIndicator();
+          catalog=Object.assign(createBlankCatalog(), data);
+          resetRuntimeSelections();
+          normalizeCatalogForV65();
+          storageSource.catalog='imported'; setFileRef('catalog','imported',file.name); updateSaveIndicator();
           markDirty();
           refreshCurrentViews();
           addLog('ok',`Imported catalog: ${file.name}`);
@@ -2031,7 +2061,7 @@ function exportCatalog(){
   const a=document.createElement('a');
   a.href=url;a.download='endpoint-forge-catalog.json';a.click();
   URL.revokeObjectURL(url);
-  storageSource.catalog='exported/saved';updateSaveIndicator();renderDashboard();addLog('ok','Exported endpoint-forge-catalog.json');
+  storageSource.catalog='exported/saved';setFileRef('catalog','exported','endpoint-forge-catalog.json');updateSaveIndicator();renderDashboard();addLog('ok','Exported endpoint-forge-catalog.json');
 }
 
 function importSecrets(){
@@ -2046,7 +2076,7 @@ function importSecrets(){
         const data=JSON.parse(ev.target.result);
         if(Array.isArray(data.secrets)){
           catalog.secrets=data.secrets;
-          storageSource.secrets='imported'; updateSaveIndicator();
+          storageSource.secrets='imported'; setFileRef('secrets','imported',file.name); updateSaveIndicator();
           markDirty();addLog('ok',`Imported secrets: ${file.name}`);renderDashboard();
         }
       }catch(e){alert('Parse error: '+e.message);}
@@ -2064,7 +2094,7 @@ function exportSecrets(){
   const a=document.createElement('a');
   a.href=url;a.download='endpoint-forge-secrets.json';a.click();
   URL.revokeObjectURL(url);
-  storageSource.secrets='exported/saved';updateSaveIndicator();renderDashboard();addLog('ok','Exported endpoint-forge-secrets.json');
+  storageSource.secrets='exported/saved';setFileRef('secrets','exported','endpoint-forge-secrets.json');updateSaveIndicator();renderDashboard();addLog('ok','Exported endpoint-forge-secrets.json');
 }
 
 
@@ -2073,7 +2103,7 @@ function exportState(){
   const blob=new Blob([generateBuildState()],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url);
-  storageSource.state='exported/saved'; updateSaveIndicator();renderDashboard(); addLog('ok',`Exported ${filename}`);
+  storageSource.state='exported/saved'; setFileRef('state','exported',filename); updateSaveIndicator();renderDashboard(); addLog('ok',`Exported ${filename}`);
 }
 
 function importState(){
@@ -2087,7 +2117,7 @@ function importState(){
         catalog.buildStates=catalog.buildStates||{};
         catalog.buildStates[endpoint]=data;
         ctx.endpoint=endpoint; document.getElementById('ctx-endpoint').value=endpoint;
-        storageSource.state='imported'; updateSaveIndicator(); markDirty(); updateCtxDisplay(); renderDashboard(); renderChecklists(); addLog('ok',`Imported build state: ${file.name}`);
+        storageSource.state='imported'; setFileRef('state','imported',file.name); updateSaveIndicator(); markDirty(); updateCtxDisplay(); renderDashboard(); renderChecklists(); addLog('ok',`Imported build state: ${file.name}`);
       }catch(err){alert('Parse error: '+err.message);}
     }; reader.readAsText(file);
   }; inp.click();
@@ -2098,7 +2128,7 @@ function exportLogs(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob); const a=document.createElement('a');
   a.href=url; a.download='endpoint-forge-log.json'; a.click(); URL.revokeObjectURL(url);
-  addLog('ok','Exported endpoint-forge-log.json'); renderDashboard();
+  storageSource.logs='exported/saved'; setFileRef('logs','exported','endpoint-forge-log.json'); updateSaveIndicator(); addLog('ok','Exported endpoint-forge-log.json'); renderDashboard();
 }
 
 function importLogs(){
@@ -2113,7 +2143,7 @@ function importLogs(){
         }else{
           logs=String(ev.target.result).split(/\r?\n/).filter(Boolean).map(line=>({time:new Date().toISOString(),level:'info',msg:line,client:currentClientName(),endpoint:ctx.endpoint}));
         }
-        markDirty(); addLog('ok',`Imported logs: ${file.name}`); renderDashboard();
+        storageSource.logs='imported'; setFileRef('logs','imported',file.name); markDirty(); addLog('ok',`Imported logs: ${file.name}`); renderDashboard();
       }catch(err){alert('Import error: '+err.message);}
     }; reader.readAsText(file);
   }; inp.click();
@@ -2141,52 +2171,74 @@ function clearLocalCache(){
   localStorage.removeItem('endpoint-forge');
   localStorage.removeItem('endpoint-forge-ctx');
   localStorage.removeItem('endpoint-forge-logs');
-  storageSource={catalog:'demo',secrets:'demo',state:'demo'};
+  storageSource={catalog:'demo',secrets:'demo',state:'demo',logs:'memory'}; fileRefs={catalog:'No catalog JSON has been imported or exported in this browser session.', secrets:'No secrets JSON has been imported or exported in this browser session.', state:'No endpoint state JSON has been imported or exported in this browser session.', logs:'No log JSON/text file has been imported or exported in this browser session.'};
   updateSaveIndicator();renderDashboard();addLog('warn','Local browser cache cleared');
 }
+
+function blankSlate(){
+  const msg='This will clear demo data and browser recovery data, then start a new blank Endpoint Forge catalog in memory. Export any wanted Catalog, Secrets, Endpoint State, and Logs first. Continue?';
+  if(!confirm(msg))return;
+  localStorage.removeItem('endpoint-forge');
+  localStorage.removeItem('endpoint-forge-ctx');
+  localStorage.removeItem('endpoint-forge-logs');
+  catalog=createBlankCatalog();
+  ctx={clientId:'',profileId:'',endpoint:'',date:new Date().toISOString().split('T')[0],mode:'build'};
+  logs=[];
+  storageSource={catalog:'memory',secrets:'memory',state:'memory',logs:'memory'};
+  fileRefs={catalog:'Blank in-memory catalog has not been exported yet.',secrets:'Blank in-memory secrets have not been exported yet.',state:'Blank in-memory endpoint state has not been exported yet.',logs:'Blank in-memory logs have not been exported yet.'};
+  resetRuntimeSelections();
+  normalizeCatalogForV65();
+  document.getElementById('ctx-endpoint').value='';
+  document.getElementById('ctx-date').value=ctx.date;
+  const modeSel=document.getElementById('ctx-mode'); if(modeSel) modeSel.value='build';
+  markDirty();
+  refreshCurrentViews();
+  addLog('warn','Started a blank in-memory Endpoint Forge project');
+}
 function showPageContext(){
-  let text='';
-  if(currentPage==='settings'){
-    const details={
-      clients:'Settings > Clients is catalog data. Clients are source-of-truth containers for profiles, secrets, and checklists. Disabled clients are hidden from the global selector but remain in the catalog.',
-      profiles:'Settings > Profiles is client-scoped catalog data. Profiles select included and excluded items by item, category, tag, type, phase, and operating system. Exclusions override inclusions.',
-      categories:'Settings > Categories is client/catalog taxonomy used by items and profiles. Renaming a category updates item/profile references.',
-      tags:'Settings > Tags is catalog taxonomy used for flexible filtering and profile rules. Renaming a tag updates item/profile references.',
-      types:'Settings > Types is catalog taxonomy used to classify Endpoint Forge artifacts such as applications, scriptlets, fixes, policies, and manual procedures.',
-      phases:'Settings > Phases controls workflow ordering such as precheck, install, configure, verify, rollback, and offboarding.',
-      'operating-systems':'Settings > Operating Systems controls script generation. OS IDs are referenced by items and profiles; changing an ID updates those references.',
-      secrets:'Settings > Secrets is client-specific sensitive data. Catalog items reference secret names; actual values should live in the secrets JSON, not in shared catalog exports.',
-      'checklists-mgr':'Settings > Checklists manages client-specific checklist definitions. Endpoint completion state belongs to build-state/recovery cache, not the catalog template.'
-    };
-    text=details[settingsSection]||'Settings defines source-of-truth configuration used throughout Endpoint Forge.';
-  }else{
-    text={
-      dashboard:'Dashboard is influenced by all project files, global Client/Profile/Endpoint/Date, browser recovery cache, and current in-memory state.',
-      items:'Items are catalog source-of-truth Endpoint Forge artifacts. Filters are local UI state. Profiles and Generated Outputs consume these items.',
-      checklists:'Checklists are client-specific templates. Completion state is endpoint-specific and stored in build state/recovery cache.',
-      outputs:'Generated Outputs are derived from Client, Profile, Endpoint, Build Date, Catalog items, Checklists, Secrets, and Build State.'
-    }[currentPage]||'This page is affected by global context and catalog data.';
-  }
+  const pageDetails={
+    dashboard:'Dashboard summarizes current global context, storage status, validation, recent logs, and file import/export state. Catalog/Secrets/State/Logs may be demo, browser cache, in-memory, imported, or exported JSON.',
+    items:'Items are catalog source-of-truth Endpoint Forge artifacts. The global Client/Profile controls influence dashboard counts and generated outputs, while this page edits the catalog item library itself.',
+    checklists:'Checklists are client-specific templates plus generated lists. Completion state is endpoint-specific. Manual/Offboarding/generated lists are derived from matching items and should identify their source.',
+    outputs:'Generated Outputs are derived from Catalog items, Client, Profile, Endpoint, Build Date, Secrets, Checklists, and Build State. Exported ZIP files should be reviewed before use.',
+    settings:'Settings controls source-of-truth data. The active subtab determines scope.'
+  };
+  const settingsDetails={
+    clients:'Clients are catalog containers. Disabled clients are hidden from global selection but retained. Deleting clients should be treated as permanent removal.',
+    profiles:'Profiles are client-scoped include/exclude rules. Exclusions override inclusions. Disabled profiles are hidden but retained.',
+    categories:'Categories are taxonomy values used by items and profiles. Renaming should update references everywhere.',
+    tags:'Tags are taxonomy values used by items, filters, profiles, and generated checklist criteria. Renaming should update references everywhere.',
+    types:'Types classify artifacts and are used by filters, profile rules, and generated checklist criteria.',
+    phases:'Phases describe workflow order and are used by items, profile rules, and generated outputs.',
+    'operating-systems':'Operating Systems define command buckets and output script filenames/types. Disabled OSes remain in the catalog but are excluded from selection/output.',
+    secrets:'Secrets are client-specific sensitive values. Keep real values here, not in the catalog. Use sanitized exports when sharing catalog data.'
+  };
+  let text=pageDetails[currentPage]||'This page is affected by global context and catalog data.';
+  if(currentPage==='settings') text += ' Active Settings subtab: '+(settingsDetails[settingsSection]||'General settings.') ;
   showModal('Page Context',`<p style="line-height:1.5;color:var(--text2)">${esc(text)}</p>`,'OK',()=>{});
 }
 function showChangeLog(){
   showModal('Endpoint Forge Change Log',`<div style="max-height:420px;overflow:auto;line-height:1.5;color:var(--text2)">
-    <h3>v6.6</h3><ul><li>Stability recovery release: restored item saving, checklists, build-state export, and valid ZIP generation.</li><li>Expanded change log history back to the first Build Catalog version.</li></ul>
-    <h3>v6.7</h3><ul><li>Added MCAD stabilization pass across clients, profiles, items, checklists, secrets, taxonomy, and operating systems.</li><li>Restored generated Manual and Offboarding checklist synchronization from profile items.</li><li>Added checklist indent/outdent controls and parent/child checkbox propagation.</li><li>Added browser history navigation support for back/forward mouse buttons.</li><li>Fixed global context refresh propagation and alphabetized profile pickers.</li></ul><h3>v6.6</h3><ul><li>Dashboard summary cards open their respective work areas.</li><li>Checklist management consolidated into the Checklists tab with rename and enable/disable controls.</li><li>Generated/system checklists now describe their source.</li><li>Missing OS validation can remove stale item mappings directly.</li><li>Disabling/deleting an OS can clean item/profile references.</li></ul><h3>v6.5 / v6.5.1</h3><ul><li>Added secret show/hide controls with security note.</li><li>Improved Project Health missing-secret fix workflow.</li><li>Added disabled clients/profiles.</li><li>Added OS ordering and OS ID reference updates.</li><li>Improved Settings page help by subtab.</li></ul>
+    <h3>v6.9</h3><ul><li>Corrected change log history and version labels.</li><li>Added blank slate workflow and import-as-reset behavior.</li><li>Improved dashboard file status with hover details and in-memory vs JSON committed state.</li><li>Hardened the published static page with a restrictive CSP, no external connections, no eval usage, and AGPL notice/source reminders.</li><li>Changed demo data to Microsoft fictitious company names.</li></ul>
+    <h3>v6.8</h3><ul><li>Fixed item table column-header sorting.</li><li>Added checklist drag handles, hierarchical numbering, and generated checklist criteria workflow.</li></ul>
+    <h3>v6.7</h3><ul><li>Added MCAD stabilization pass across clients, profiles, items, checklists, secrets, taxonomy, and operating systems.</li><li>Restored generated Manual and Offboarding checklist synchronization from profile items.</li><li>Added checklist indent/outdent controls and parent/child checkbox propagation.</li><li>Added browser history navigation support for back/forward mouse buttons.</li><li>Fixed global context refresh propagation and alphabetized profile pickers.</li></ul>
+    <h3>v6.6</h3><ul><li>Dashboard summary cards open their respective work areas.</li><li>Checklist management consolidated into the Checklists tab with rename and enable/disable controls.</li><li>Generated/system checklists now describe their source.</li><li>Missing OS validation can remove stale item mappings directly.</li><li>Disabling/deleting an OS can clean item/profile references.</li></ul>
+    <h3>v6.5.2</h3><ul><li>Restored item saving, checklists, build-state export, and valid ZIP generation.</li><li>Expanded change log history back to the first Build Catalog version.</li></ul>
+    <h3>v6.5 / v6.5.1</h3><ul><li>Added secret show/hide controls with security note.</li><li>Improved Project Health missing-secret fix workflow.</li><li>Added disabled clients/profiles.</li><li>Added OS ordering and OS ID reference updates.</li><li>Improved Settings page help by subtab.</li><li>v6.5.1 fixed a startup-breaking syntax error.</li></ul>
     <h3>v6.4</h3><ul><li>Added cache clear warning/action.</li><li>Added profile include/exclude individual item selectors using item names.</li><li>Added clickable validation fixes.</li><li>Added Endpoint Forge multiselect filter dropdowns.</li><li>Added page-context help.</li></ul>
     <h3>v6.3</h3><ul><li>Added richer save-state indicator.</li><li>Added multi-filter support.</li><li>Added profile include rules for items, tags, types, phases, and OS.</li></ul>
     <h3>v6.2</h3><ul><li>Improved dashboard import/export workflows.</li><li>Added endpoint state and log import/export.</li><li>Fixed ZIP exports into discrete files.</li><li>Added checklist editing and protected generated Manual/Offboarding checklists.</li></ul>
     <h3>v6.1</h3><ul><li>Restored nested checklist support.</li><li>Improved output generation for all OS scripts.</li><li>Clarified embedded demo data vs imported JSON files.</li></ul>
-    <h3>v6.0</h3><ul><li>Renamed project to Endpoint Forge.</li><li>Reset UI baseline around compact header, left nav, cards, and endpoint artifact concept.</li><li>Expanded scope from build catalog to portable endpoint runbook/scriptlet repository.</li></ul>
-    <h3>v5.8.x</h3><ul><li>Introduced Endpoint Forge-like workflows: dashboard, generated outputs, settings subtabs, global client/profile context, endpoint state, fixed scrolling, and output selection.</li></ul>
+    <h3>v6.0</h3><ul><li>Renamed project to Endpoint Forge.</li><li>Reset UI baseline around compact header, left navigation, cards, and endpoint artifact concept.</li><li>Expanded scope from build catalog to portable endpoint runbook/scriptlet repository.</li></ul>
+    <h3>v5.8.x</h3><ul><li>Introduced Endpoint Forge-style workflows: dashboard, generated outputs, settings subtabs, global client/profile context, endpoint state, fixed scrolling, output selection, and generated checklist consolidation.</li></ul>
     <h3>v5.x</h3><ul><li>Added client/profile support, secrets separation, generated output ZIPs, checklists, item editor, MCAD operations, sortable/filterable lists, and external JSON workflow.</li></ul>
-    <h3>v4.x</h3><ul><li>Added MCAD support for core entities, profile/client deletion, settings reorganization, sortable headers/lists, and endpoint-centric checklist state.</li></ul>
+    <h3>v4.x</h3><ul><li>Added MCAD support for core entities, profile/client deletion, Settings reorganization, sortable headers/lists, and endpoint-centric checklist state.</li></ul>
     <h3>v3.x</h3><ul><li>Added advanced filtering, build-session state, logging metadata, client/profile separation, and external secrets handling.</li></ul>
-    <h3>v2.x</h3><ul><li>Added item add/edit/remove, ordering, separate checklists, nested checklist support, and secrets template.</li></ul>
+    <h3>v2.x</h3><ul><li>Added item add/edit/remove, ordering, separate editable/nested checklists, custom checklists, and secrets template.</li></ul>
     <h3>v1.x</h3><ul><li>Initial standalone HTML + external JSON build catalog prototype with OS-specific script/checklist exports.</li></ul>
+    <hr><div class="license-note">Endpoint Forge is intended to be distributed under the GNU AGPL-3.0-or-later. When published online, provide source code and license text with the hosted app.</div>
   </div>`,'Close',()=>{});
 }
-
 // ===== MODAL =====
 let modalCallback=null;
 function showModal(title,bodyHtml,okLabel,cb){
