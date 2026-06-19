@@ -1,5 +1,11 @@
 # Changelog
 
+## v8.0.1
+
+- Fixed a JavaScript startup-blocking syntax error in the sample data.
+- Restored site-wide button, navigation, render, and event-handler functionality.
+- Kept stable GitHub Pages deploy filenames.
+
 ## v8.0.0
 
 - Major schema reset.

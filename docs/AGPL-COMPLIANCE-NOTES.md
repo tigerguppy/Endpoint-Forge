@@ -1,13 +1,13 @@
 # AGPL Compliance Notes
 
-Endpoint Forge v8.0.0 is intended to be distributed under AGPL-3.0-or-later.
+Endpoint Forge is intended to be published under AGPL-3.0-or-later.
 
-For public hosting, keep these items in the public repository:
+Recommended repository items:
 
-1. Complete corresponding source code for the hosted version.
-2. A full copy of the GNU Affero General Public License v3.0 as `LICENSE` or `LICENSE.md`.
-3. Prominent copyright and license notices.
-4. A visible way for users interacting with the hosted application to find the license/source notice.
-5. Any build scripts or source files needed to recreate the hosted artifact.
+- Include a full `LICENSE` file containing AGPL-3.0-or-later.
+- Keep copyright notices in source files.
+- Publish corresponding source code for any deployed network-accessible version.
+- Keep third-party dependency notices if external libraries are added later.
+- Do not remove license notices from redistributed copies.
 
-The v8 HTML includes an SPDX identifier and an in-app license modal, but the repository should still contain the full license text.
+Endpoint Forge v8.0.1 is currently a single-file browser app with no bundled third-party JavaScript dependencies.
